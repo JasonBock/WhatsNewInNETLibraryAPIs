@@ -77,6 +77,19 @@ static void DemonstrateFrozenCollections()
 	Console.WriteLine($"frozenGuitars.Count = {frozenGuitars.Count}");
 }
 
+//DemonstrateShuffling();
+
+static void DemonstrateShuffling()
+{
+	Console.WriteLine(nameof(DemonstrateFrozenCollections));
+	Console.WriteLine();
+
+	var items = Enumerable.Range(0, 100).ToArray();
+	RandomNumberGenerator.Shuffle(items.AsSpan());
+
+	Console.WriteLine(string.Join(", ", items));
+}
+
 /*
 LINQ and collections go hand in hand. A lot of performance improvements
 have been made with LINQ, along with making small but useful
@@ -452,7 +465,7 @@ static void DemonstrateStringSyntax()
 }
 
 /*
-Source generators are everywhere. Minimal APIs, logging, JSON serialization,
+Source generators are everywhere. Minimal APIs, logging, JSON serialization, configuration,
 along with numerous OSS projects. Regular expressions is just one of many 
 examples to dive into.
 */
@@ -468,3 +481,8 @@ static void DemonstrateRegularExpressions()
 	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString()));
 	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString("N")));
 }
+
+/*
+And so much more! Resiliency, numerics and intrinsics, streams,
+garbage collection, DI, metrics - there's a lot to take a look at.
+*/
