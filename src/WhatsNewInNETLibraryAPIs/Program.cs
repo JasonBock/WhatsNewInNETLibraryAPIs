@@ -1,31 +1,172 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Time.Testing;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Formats.Tar;
 using System.Globalization;
 using System.Numerics;
+using System.Security.Cryptography;
 using System.Text.Json;
 using WhatsNewInNETLibraryAPIs;
 
-//DemonstrateNullableAnnotations();
+/*
+Collections are core to many .NET applications,
+and changes haven't stopped.
+*/
 
-static void DemonstrateNullableAnnotations()
+//DemonstrateCollectionsPriorityQueue();
+
+static void DemonstrateCollectionsPriorityQueue()
 {
-	Console.WriteLine(nameof(DemonstrateNullableAnnotations));
+	Console.WriteLine(nameof(DemonstrateCollectionsPriorityQueue));
 	Console.WriteLine();
 
-	var services = new ServiceCollection();
-	services.AddSingleton<IPerson, Person>();
+	// Before: A queue is FIFO, but there's no way
+	// to prioritize them.
+	var beforeQueue = new Queue<int>(6);
+	beforeQueue.Enqueue(1);
+	beforeQueue.Enqueue(2);
+	beforeQueue.Enqueue(3);
+	beforeQueue.Enqueue(4);
+	beforeQueue.Enqueue(5);
+	beforeQueue.Enqueue(6);
 
-	var provider = services.BuildServiceProvider();
-	var data = provider.GetService(typeof(IPerson)) as Person;
-
-	if (data is not null)
+	while (beforeQueue.TryDequeue(out var beforeItem))
 	{
-		Console.WriteLine(data.Name);
+		Console.WriteLine($"Queue: {beforeItem}");
+	}
+
+	// After: PriorityQueue gives you a way
+	// to do prioritization.
+	var afterQueue = new PriorityQueue<int, int>(6);
+	afterQueue.Enqueue(1, 3);
+	afterQueue.Enqueue(2, 7);
+	afterQueue.Enqueue(3, 5);
+	afterQueue.Enqueue(4, 1);
+	afterQueue.Enqueue(5, -1);
+	afterQueue.Enqueue(6, 5);
+
+	while (afterQueue.TryDequeue(out var afterItem, out var afterPriority))
+	{
+		Console.WriteLine($"PriorityQueue: {afterItem}, {afterPriority}");
 	}
 }
+
+//DemonstrateFrozenCollections();
+
+static void DemonstrateFrozenCollections()
+{
+	Console.WriteLine(nameof(DemonstrateFrozenCollections));
+	Console.WriteLine();
+
+	var guitars = new Guitar[]
+	{
+			new Guitar("PRS", 7),
+			new Guitar("Ovation", 12),
+			new Guitar("Warwick", 5),
+			new Guitar("Charvel", 6),
+	};
+
+	var immutableGuitars = guitars.ToImmutableArray();
+	var newImmutableGuitars = immutableGuitars.Add(new Guitar("Gibson", 6));
+
+	Console.WriteLine($"immutableGuitars.Count = {immutableGuitars.Length}");
+	Console.WriteLine($"newImmutableGuitars.Count = {newImmutableGuitars.Length}");
+
+	var frozenGuitars = guitars.ToFrozenSet();
+	// There is no "Add".
+	Console.WriteLine($"frozenGuitars.Count = {frozenGuitars.Count}");
+}
+
+/*
+LINQ and collections go hand in hand. A lot of performance improvements
+have been made with LINQ, along with making small but useful
+API improvements.
+*/
+
+//DemonstrateLinqImprovementsDefaultValues();
+
+static void DemonstrateLinqImprovementsDefaultValues()
+{
+	Console.WriteLine(nameof(DemonstrateLinqImprovementsDefaultValues));
+	Console.WriteLine();
+
+	var items = new List<int>() { 1, 2, 3, 4, 5, 6 };
+
+	// Before: The "default" value wasn't settable for those
+	// LINQ functions that provide a default value, so in this case, we get 0
+	// (the default value of int).
+	Console.WriteLine($"Before: {items.FirstOrDefault(_ => _ < 0)}");
+
+	// After: You can provide a default value.
+	Console.WriteLine($"After: {items.FirstOrDefault(_ => _ < 0, -1)}");
+}
+
+//DemonstrateLinqImprovementsByOperators();
+
+// https://github.com/dotnet/runtime/issues/27687
+static void DemonstrateLinqImprovementsByOperators()
+{
+	Console.WriteLine(nameof(DemonstrateLinqImprovementsByOperators));
+	Console.WriteLine();
+
+	var guitars = new Guitar[]
+	{
+		new Guitar("PRS", 7),
+		new Guitar("Ovation", 12),
+		new Guitar("Warwick", 5),
+		new Guitar("Charvel", 6),
+	};
+
+	// Before: With Min(), you'd actually get the key value.
+	Console.WriteLine($"Before: {guitars.Min(_ => _.StringCount)}");
+
+	// After: You can now use MinBy() which will return
+	// the object itself.
+	Console.WriteLine($"After: {guitars.MinBy(_ => _.StringCount)}");
+}
+
+//DemonstrateLinqOrder();
+
+// https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/#linq
+static void DemonstrateLinqImprovementsOrder()
+{
+	Console.WriteLine(nameof(DemonstrateLinqImprovementsOrder));
+	Console.WriteLine();
+
+	var items = new[] { 3, 9, 12, 4, -2, 6 };
+
+	// Previously, you had to do this:
+	Console.WriteLine("OrderBy");
+	var oldOrder = items.OrderBy(static x => x);
+	foreach (var oldItem in oldOrder)
+	{
+		Console.WriteLine(oldItem);
+	}
+
+	Console.WriteLine();
+
+	// Now, it's a little simpler:
+	Console.WriteLine("Order");
+	var newOrder = items.Order();
+	foreach (var newItem in newOrder)
+	{
+		Console.WriteLine(newItem);
+	}
+
+	Console.WriteLine();
+
+	var names = new[] { "Jason", "Jane", "Don" };
+
+	foreach (var name in names.Order())
+	{
+		Console.WriteLine(name);
+	}
+}
+
+/*
+Static abstract members in interfaces (SAMIs) is a major
+change to interfaces.
+*/
 
 //DemonstrateMath();
 
@@ -70,11 +211,154 @@ static void DemonstrateParseable()
 	}
 }
 
-//DemonstrateMoreOneLineThrows();
+/*
+Cryptography has been around since 1.0, and in recent history,
+APIs have been added to reduce the amount of code necessary
+to perform cryptographic operations.
+*/
 
-static void DemonstrateMoreOneLineThrows()
+//DemonstrateOneShotCryptography();
+
+static void DemonstrateOneShotCryptography()
 {
-	Console.WriteLine(nameof(DemonstrateMoreOneLineThrows));
+	Console.WriteLine(nameof(DemonstrateOneShotCryptography));
+	Console.WriteLine();
+
+	var data = RandomNumberGenerator.GetBytes(256);
+	var key = RandomNumberGenerator.GetBytes(16);
+	var iv = RandomNumberGenerator.GetBytes(16);
+
+	// Before: For cryptographic operations, you used to have to do more:
+	using (var hash = SHA512.Create())
+	{
+#pragma warning disable CA1850 // Prefer static 'HashData' method over 'ComputeHash'
+		var beforeDigest = hash.ComputeHash(data);
+#pragma warning restore CA1850 // Prefer static 'HashData' method over 'ComputeHash'
+		Console.WriteLine("Before hash: [{0}]", string.Join(", ", beforeDigest));
+		Console.WriteLine();
+
+		using var beforeAes = Aes.Create();
+#pragma warning disable CA5401 // Do not use CreateEncryptor with non-default IV
+		using var transform = beforeAes.CreateEncryptor(key, iv);
+#pragma warning restore CA5401 // Do not use CreateEncryptor with non-default IV
+		var beforeEncrypted = transform.TransformFinalBlock(data, 0, data.Length);
+		Console.WriteLine("Before encrypted: [{0}]", string.Join(", ", beforeEncrypted));
+		Console.WriteLine();
+	}
+
+	// After: Now, there are "one-shot" operations.
+	var afterDigest = SHA512.HashData(data);
+	Console.WriteLine($"After hash: [{string.Join(", ", afterDigest)}]");
+	Console.WriteLine();
+
+	// .NET added SHA3 support, though it's new, some OSes don't support it yet.
+	if (SHA3_256.IsSupported)
+	{
+		var sha3Digest = SHA3_256.HashData(data);
+		Console.WriteLine($"SHA3 hash: [{string.Join(", ", sha3Digest)}]");
+	}
+	else
+	{
+		Console.WriteLine("SHA3 hash is not supported");
+	}
+
+	Console.WriteLine();
+
+	using var afterAes = Aes.Create();
+	afterAes.Key = key;
+	var afterEncrypted = afterAes.EncryptCbc(data, iv);
+	Console.WriteLine($"After encrypted: [{string.Join(", ", afterEncrypted)}]");
+}
+
+/*
+Dates and times can be a thorny issue, especially as it related to
+time zones, date or time representation, and testing.
+*/
+
+//DemonstrateDatesAndTimes();
+
+static void DemonstrateDatesAndTimes()
+{
+	Console.WriteLine(nameof(DemonstrateDatesAndTimes));
+	Console.WriteLine();
+
+	// Before: If you wanted to represent just a date or time...
+	// you couldn't. You had to use a Date, or a TimeSpan for time.
+	// But timezones and "overflow" can make for unexpected results.
+	var beforeDate = new DateTime(2022, 1, 5);
+	var beforeTime = new DateTime(2022, 1, 5, 13, 13, 0);
+	var beforeTimeSpan = new TimeSpan(13, 13, 0);
+	Console.WriteLine($"Before: Date is {beforeDate}");
+	Console.WriteLine($"Before: Time is {beforeTime}");
+	Console.WriteLine($"Before: Time + Time is {beforeTime.Add(beforeTime.TimeOfDay)}");
+	Console.WriteLine($"Before: TimeSpan is {beforeTimeSpan}");
+	Console.WriteLine($"Before: TimeSpan + TimeSpan is {beforeTimeSpan.Add(beforeTimeSpan)}");
+
+	// After: Now you can use DateOnly and TimeOnly.
+	var afterDate = new DateOnly(2022, 1, 5);
+	var afterTime = new TimeOnly(13, 13, 0);
+	Console.WriteLine($"After: Date is {afterDate}");
+	Console.WriteLine($"After: Time is {afterTime}");
+	Console.WriteLine($"After: Time + Time is {afterTime.Add(afterTime.ToTimeSpan())}");
+}
+
+//DemonstrateTimeProvider();
+
+static void DemonstrateTimeProvider()
+{
+	Console.WriteLine(nameof(DemonstrateTimeProvider));
+	Console.WriteLine();
+
+	var oldIssue = new OldIssue(IssueLevel.Bug);
+	Console.WriteLine($"Old issue priority (should be Concerning): {oldIssue.GetPriority()}");
+
+	var utcNow = DateTimeOffset.UtcNow;
+	var concerningFakeTimeProvider = new FakeTimeProvider(utcNow);
+	var newBugConcerningIssue = new NewIssue(IssueLevel.Bug, concerningFakeTimeProvider);
+	Console.WriteLine($"New issue bug priority (should be Concerning): {newBugConcerningIssue.GetPriority()}");
+
+	var immediateFakeTimeProvider = new FakeTimeProvider(utcNow);
+	var newBugImmediateIssue = new NewIssue(IssueLevel.Bug, immediateFakeTimeProvider);
+	immediateFakeTimeProvider.Advance(TimeSpan.FromDays(2));
+	Console.WriteLine($"New issue bug priority (should be Immediate): {newBugImmediateIssue.GetPriority()}");
+}
+
+/*
+Similar to the cryptography example above, exception creation
+is getting smaller with "ThrowIf" static method patterns.
+*/
+
+//DemonstrateOneLineThrows();
+
+static void DemonstrateOneLineThrows()
+{
+	Console.WriteLine(nameof(DemonstrateOneLineThrows));
+	Console.WriteLine();
+
+	static string GetGuitarManufacturer(Guitar guitar)
+	{
+		ArgumentNullException.ThrowIfNull(guitar);
+		return guitar.Manufacturer;
+	}
+
+	try
+	{
+		Console.WriteLine(GetGuitarManufacturer(new("PRS", 7)));
+	}
+	catch (ArgumentException e)
+	{
+		Console.WriteLine(e.Message);
+	}
+
+	try
+	{
+		Console.WriteLine(GetGuitarManufacturer(null!));
+	}
+	catch (ArgumentNullException e)
+	{
+		Console.WriteLine(e.Message);
+	}
+
 	Console.WriteLine();
 
 	static int GetLength(string value)
@@ -132,36 +416,12 @@ static void DemonstrateObjectDisposeException()
 	}
 }
 
-//DemonstrateUnreachableException();
-
-static void DemonstrateUnreachableException()
-{
-	Console.WriteLine(nameof(DemonstrateUnreachableException));
-	Console.WriteLine();
-
-	// In Celsius
-	static string EvaluateTemperature(double value) =>
-		value switch
-		{
-			// Absolute zero is -273.15,
-			// and the theoretical highest temperature is 
-			// https://futurism.com/science-explained-hottest-possible-temperature
-			> -273.15d and < -80d => "Unbelievably Cold",
-			>= -80d and < -30d => "Antartica",
-			>= -30d and < 5d => "Winter",
-			>= 5d and < 10d => "Fall",
-			>= 10d and < 20d => "Spring",
-			>= 20d and < 30d => "Summer",
-			>= 30d and < 50d => "Hot",
-			>= 50d and < 100d => "Danger",
-			>= 100d and < 1_420_000_000_000_000_000_000_000_000_000_000d => "Scorching",
-			_ => throw new UnreachableException("oh no")
-		};
-
-	Console.WriteLine(EvaluateTemperature(10d));
-	Console.WriteLine(EvaluateTemperature(45d));
-	Console.WriteLine(EvaluateTemperature(-273.15d));
-}
+/*
+One nice improvement with C# 11 is raw string literals.
+As strings get larger and representation well-known formats (e.g. JSON),
+it's nice that we can check string literals at compile time
+for issues.
+*/
 
 //DemonstrateStringSyntax();
 
@@ -191,93 +451,13 @@ static void DemonstrateStringSyntax()
 		"""));
 }
 
-//DemonstrateImmutableCollections();
+/*
+Source generators are everywhere. Minimal APIs, logging, JSON serialization,
+along with numerous OSS projects. Regular expressions is just one of many 
+examples to dive into.
+*/
 
-static void DemonstrateImmutableCollections()
-{
-	Console.WriteLine(nameof(DemonstrateImmutableCollections));
-	Console.WriteLine();
-
-	var itemsBuilder = ImmutableArray.CreateBuilder<string>();
-	itemsBuilder.Add("a");
-	itemsBuilder.Add("b");
-	itemsBuilder.Add("c");
-
-	var items = itemsBuilder.ToImmutable();
-
-	// Now you can "add" a range to an immutable array,
-	// as well as insert and remove.
-	var newItems = items.AddRange("d", "e", "f");
-
-	Console.WriteLine(string.Join(", ", items));
-	Console.WriteLine(string.Join(", ", newItems));
-}
-
-//DemonstrateLinqOrder();
-
-// https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/#linq
-static void DemonstrateLinqOrder()
-{
-	Console.WriteLine(nameof(DemonstrateLinqOrder));
-	Console.WriteLine();
-
-	var items = new[] { 3, 9, 12, 4, -2, 6 };
-
-	// Previously, you had to do this:
-	Console.WriteLine("OrderBy");
-	var oldOrder = items.OrderBy(static x => x);
-	foreach (var oldItem in oldOrder)
-	{
-		Console.WriteLine(oldItem);
-	}
-
-	Console.WriteLine();
-
-	// Now, it's a little simpler:
-	Console.WriteLine("Order");
-	var newOrder = items.Order();
-	foreach (var newItem in newOrder)
-	{
-		Console.WriteLine(newItem);
-	}
-
-	Console.WriteLine();
-
-	var names = new[] { "Jason", "Jane", "Don" };
-
-	foreach (var name in names.Order())
-	{
-		Console.WriteLine(name);
-	}
-}
-
-//DemonstrateTar();
-
-static void DemonstrateTar()
-{
-	Console.WriteLine(nameof(DemonstrateTar));
-	Console.WriteLine();
-
-	var tarFilePath = Path.Combine(Directory.GetCurrentDirectory(), "..\\content.tar");
-
-	File.Delete(tarFilePath);
-
-	TarFile.CreateFromDirectory(Directory.GetCurrentDirectory(), "..\\content.tar", true);
-
-	using var file = new FileStream(tarFilePath, FileMode.Open);
-	using var reader = new TarReader(file);
-
-	var entry = reader.GetNextEntry();
-
-	while (entry is not null)
-	{
-		Console.WriteLine(entry);
-
-		entry = reader.GetNextEntry();
-	}
-}
-
-DemonstrateRegularExpressions();
+//DemonstrateRegularExpressions();
 
 static void DemonstrateRegularExpressions()
 {

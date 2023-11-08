@@ -1,0 +1,1 @@
+﻿public record Guitar(string Manufacturer, int StringCount);
