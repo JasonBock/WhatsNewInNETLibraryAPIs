@@ -35,6 +35,8 @@ static void DemonstrateCollectionsPriorityQueue()
 		Console.WriteLine($"Queue: {beforeItem}");
 	}
 
+	Console.WriteLine();
+
 	// After: PriorityQueue gives you a way
 	// to do prioritization.
 	var afterQueue = new PriorityQueue<int, int>(6);
@@ -45,6 +47,9 @@ static void DemonstrateCollectionsPriorityQueue()
 	afterQueue.Enqueue(5, -1);
 	afterQueue.Enqueue(6, 5);
 
+	// From the docs:
+	// "Note that the type does not guarantee first-in-first-out semantics
+	// for elements of equal priority."
 	while (afterQueue.TryDequeue(out var afterItem, out var afterPriority))
 	{
 		Console.WriteLine($"PriorityQueue: {afterItem}, {afterPriority}");
@@ -85,9 +90,20 @@ static void DemonstrateShuffling()
 	Console.WriteLine();
 
 	var items = Enumerable.Range(0, 100).ToArray();
-	RandomNumberGenerator.Shuffle(items.AsSpan());
 
-	Console.WriteLine(string.Join(", ", items));
+	Console.WriteLine($"Original items order: {string.Join(", ", items)}");
+	Console.WriteLine();
+	RandomNumberGenerator.Shuffle(items.AsSpan());
+	Console.WriteLine($"Shuffled items order: {string.Join(", ", items)}");
+	Console.WriteLine();
+	Console.WriteLine();
+
+	string[] names = ["Jane", "Joe", "Tim", "Jason", "Sheila", "Liz", "Mike", "Hayden", "Ryan"];
+
+	Console.WriteLine($"Original names order: {string.Join(", ", names)}");
+	Console.WriteLine();
+	RandomNumberGenerator.Shuffle(names.AsSpan());
+	Console.WriteLine($"Shuffled names order: {string.Join(", ", names)}");
 }
 
 /*
@@ -138,7 +154,7 @@ static void DemonstrateLinqImprovementsByOperators()
 	Console.WriteLine($"After: {guitars.MinBy(_ => _.StringCount)}");
 }
 
-//DemonstrateLinqOrder();
+//DemonstrateLinqImprovementsOrder();
 
 // https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/#linq
 static void DemonstrateLinqImprovementsOrder()
@@ -168,7 +184,7 @@ static void DemonstrateLinqImprovementsOrder()
 
 	Console.WriteLine();
 
-	var names = new[] { "Jason", "Jane", "Don" };
+	var names = new[] { "Jane", "Joe", "Tim", "Jason", "Sheila", "Liz", "Mike", "Hayden", "Ryan" };
 
 	foreach (var name in names.Order())
 	{
@@ -183,7 +199,7 @@ change to interfaces.
 
 //DemonstrateMath();
 
-// Go through IBinaryInteger to IBinaryNumber to find INumber
+// int -> IBinaryInteger -> IBinaryNumber -> INumber -> INumberBase -> IAdditionOperators
 static void DemonstrateMath()
 {
 	Console.WriteLine(nameof(DemonstrateMath));
@@ -209,7 +225,8 @@ static void DemonstrateMath()
 
 //DemonstrateParseable();
 
-// Go through ISignedNumber to find IParseable
+// int -> IBinaryInteger -> IBinaryNumber -> INumber -> INumberBase -> 
+// ISpanParsable -> IParsable
 static void DemonstrateParseable()
 {
 	Console.WriteLine(nameof(DemonstrateParseable));
@@ -307,6 +324,8 @@ static void DemonstrateDatesAndTimes()
 	Console.WriteLine($"Before: TimeSpan is {beforeTimeSpan}");
 	Console.WriteLine($"Before: TimeSpan + TimeSpan is {beforeTimeSpan.Add(beforeTimeSpan)}");
 
+	Console.WriteLine();
+
 	// After: Now you can use DateOnly and TimeOnly.
 	var afterDate = new DateOnly(2022, 1, 5);
 	var afterTime = new TimeOnly(13, 13, 0);
@@ -358,7 +377,7 @@ static void DemonstrateOneLineThrows()
 	{
 		Console.WriteLine(GetGuitarManufacturer(new("PRS", 7)));
 	}
-	catch (ArgumentException e)
+	catch (ArgumentNullException e)
 	{
 		Console.WriteLine(e.Message);
 	}

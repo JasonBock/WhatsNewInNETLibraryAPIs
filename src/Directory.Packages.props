@@ -4,5 +4,6 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.2.23479.6" />
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.0.0-rc.2.23510.2" />
     <PackageVersion Include="Rocks" Version="7.1.4" />
+    <PackageVersion Include="Spackle" Version="12.0.0" />
   </ItemGroup>
 </Project>
