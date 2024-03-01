@@ -8,7 +8,8 @@ public sealed class NewIssue
 	public NewIssue(IssueLevel level, TimeProvider timeProvider)
 	{
 		ArgumentNullException.ThrowIfNull(timeProvider);
-		(this.Level, this.Created, this.TimeProvider) = (level, timeProvider.GetUtcNow(), timeProvider);
+		(this.Level, this.Created, this.TimeProvider) = 
+			(level, timeProvider.GetUtcNow(), timeProvider);
 	}
 
 	public PriorityLevel GetPriority() =>

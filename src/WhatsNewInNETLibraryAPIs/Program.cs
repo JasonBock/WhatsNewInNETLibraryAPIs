@@ -86,7 +86,7 @@ static void DemonstrateFrozenCollections()
 
 static void DemonstrateShuffling()
 {
-	Console.WriteLine(nameof(DemonstrateFrozenCollections));
+	Console.WriteLine(nameof(DemonstrateShuffling));
 	Console.WriteLine();
 
 	var items = Enumerable.Range(0, 100).ToArray();
@@ -489,7 +489,7 @@ along with numerous OSS projects. Regular expressions is just one of many
 examples to dive into.
 */
 
-//DemonstrateRegularExpressions();
+DemonstrateRegularExpressions();
 
 static void DemonstrateRegularExpressions()
 {
