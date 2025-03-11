@@ -9,6 +9,11 @@ using System.Text.Json;
 using WhatsNewInNETLibraryAPIs;
 
 /*
+Note that in .NET 9, BinaryFormatter is gone.
+If you're still using it...get rid of it :)
+*/
+
+/*
 Collections are core to many .NET applications,
 and changes haven't stopped.
 */
@@ -65,10 +70,10 @@ static void DemonstrateFrozenCollections()
 
 	var guitars = new Guitar[]
 	{
-			new Guitar("PRS", 7),
-			new Guitar("Ovation", 12),
-			new Guitar("Warwick", 5),
-			new Guitar("Charvel", 6),
+		new Guitar("PRS", 7),
+		new Guitar("Ovation", 12),
+		new Guitar("Warwick", 5),
+		new Guitar("Charvel", 6),
 	};
 
 	var immutableGuitars = guitars.ToImmutableArray();
@@ -497,8 +502,12 @@ static void DemonstrateRegularExpressions()
 	Console.WriteLine();
 
 	var id = Guid.NewGuid();
-	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString()));
-	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString("N")));
+	Console.WriteLine(GuidRegex.Regex.IsMatch(id.ToString()));
+	Console.WriteLine(GuidRegex.Regex.IsMatch(id.ToString("N")));
+
+	// .NET 9 added a new way to make Guids
+	var version7Id = Guid.CreateVersion7();
+	Console.WriteLine(GuidRegex.Regex.IsMatch(version7Id.ToString()));
 }
 
 /*
