@@ -18,7 +18,7 @@ Collections are core to many .NET applications,
 and changes haven't stopped.
 */
 
-//DemonstrateCollectionsPriorityQueue();
+DemonstrateCollectionsPriorityQueue();
 
 static void DemonstrateCollectionsPriorityQueue()
 {
@@ -124,7 +124,7 @@ static void DemonstrateLinqImprovementsDefaultValues()
 	Console.WriteLine(nameof(DemonstrateLinqImprovementsDefaultValues));
 	Console.WriteLine();
 
-	var items = new List<int>() { 1, 2, 3, 4, 5, 6 };
+	var items = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
 
 	// Before: The "default" value wasn't settable for those
 	// LINQ functions that provide a default value, so in this case, we get 0
@@ -494,7 +494,7 @@ along with numerous OSS projects. Regular expressions is just one of many
 examples to dive into.
 */
 
-DemonstrateRegularExpressions();
+//DemonstrateRegularExpressions();
 
 static void DemonstrateRegularExpressions()
 {
